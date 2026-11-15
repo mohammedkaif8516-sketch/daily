@@ -101,12 +101,40 @@ function cleanOptional(content: DailyContent): DailyContent {
 // ---------- prompt + schema ----------
 
 function buildPrompt(date: string, topics: string[], recentTopics: string[]) {
-    return `Create one accurate, family-friendly daily learning page dated ${date}. Prefer these topics: ${topics.join(', ') || 'any curious subject'}. Avoid these recent topics: ${recentTopics.join(', ') || 'none'}.
+    const categoryPool = [
+        'Space & Astronomy',
+        'Ancient History',
+        'Marine Biology',
+        'Physics & How Things Work',
+        'World Geography & Cultures',
+        'Inventions & Technology',
+        'Art & Music History',
+        'Animal Behavior',
+        'Human Anatomy & Health',
+        'Weather & Climate',
+        'Mathematics in Nature',
+        'Engineering Marvels',
+    ]
+
+    let chosenTopics = topics
+    if (chosenTopics.length === 0) {
+        chosenTopics = [...categoryPool].sort(() => 0.5 - Math.random()).slice(0, 3)
+    }
+
+    return `Create one accurate, family-friendly daily learning page dated ${date}. 
+    
+You MUST strictly base today's content on ONE of these specific categories: ${chosenTopics.join(', ')}. 
+Avoid these recent topics: ${recentTopics.join(', ') || 'none'}.
+
+STRICT CONTENT RULES:
+1. Do NOT write about fungi, mushrooms, bioluminescence, glowing animals, or deep-sea creatures. We have covered these too much already. Choose a completely different subject.
+2. Make sure the chosen topic is highly specific and interesting (e.g., "How honeybees communicate" or "The history of the compass").
 
 Return ONLY a JSON object with exactly this shape:
 {"topic":"","fact":"","paragraph":{"text":"","keyTerm":""},"story":{"title":"","text":"","moral":""},"quiz":{"question":"","options":["","",""],"answerIndex":0},"quote":{"text":"","author":""},"word":{"word":"","partOfSpeech":"","meaning":"","example":""},"onThisDay":{"year":"","event":""},"challenge":"","owlSays":""}
 
 Rules:
+- topic: a short, specific title for today's lesson (e.g., "The Secret Life of Honeybees")
 - fact: one surprising, accurate sentence
 - paragraph.text: 120-160 words, clear and delightful, proofread for grammar
 - paragraph.keyTerm: one exact phrase copied from paragraph.text
