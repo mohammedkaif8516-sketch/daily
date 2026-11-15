@@ -38,7 +38,7 @@ type DailyContent = {
 // ---------- config ----------
 
 const DEFAULT_CONFIG: ProviderConfig[] = [
-    { name: 'gemini', enabled: true, type: 'gemini', model: 'gemini-3.1-flash-lite', apiKeyEnv: 'GEMINI_API_KEY', timeoutSeconds: 60, retryOn503: true },
+  { name: 'gemini', enabled: true, type: 'gemini', model: 'gemini-3.1-flash-lite', apiKeyEnv: 'GEMINI_API_KEY', timeoutSeconds: 40, retryOn503: true },
 ]
 
 async function loadProviderConfig(): Promise<ProviderConfig[]> {
