@@ -1,0 +1,32 @@
+# Daily Delight: which AI providers to use, in priority order.
+# The route tries them top to bottom and stops at the first one that works.
+# Flip "enabled" to true/false. No server restart needed.
+# API keys live in .env.local, never in this file.
+
+providers:
+  - name: gemini
+    enabled: true
+    type: gemini            # Google's own API format
+    model: gemini-3.1-flash-lite
+    apiKeyEnv: GEMINI_API_KEY
+    timeoutSeconds: 150
+    retryOn503: true  # retry once if Google says "high demand"
+    thinkingLevel: low      
+
+  - name: deepseek
+    enabled: false
+    type: openai            # any OpenAI-compatible chat API
+    baseUrl: https://api.deepseek.com
+    model: deepseek-flash   # or deepseek-v4-pro
+    apiKeyEnv: DEEPSEEK_API_KEY
+    timeoutSeconds: 60
+    jsonMode: true          # asks the API for strict JSON output
+
+  - name: chatanywhere
+    enabled: false          # switched off for now
+    type: openai
+    baseUrl: https://api.chatanywhere.tech/v1
+    model: gpt-4o-mini
+    apiKeyEnv: CHATANYWHERE_API_KEY
+    timeoutSeconds: 45
+    jsonMode: false

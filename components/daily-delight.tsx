@@ -38,60 +38,28 @@ const formatDate = (value: string) =>
 
 function Owl() {
   return (
-    <svg
-      className="owl"
-      viewBox="0 0 110 110"
-      role="img"
-      aria-label="Pip the curious owl"
-    >
-      <path
-        d="M20 43 17 15l25 15M90 43l3-28-25 15"
-        fill="#F6B91E"
-        stroke="#2B1B17"
-        strokeWidth="4"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M18 49c0-22 16-36 37-36s37 14 37 36v30c0 13-17 21-37 21S18 92 18 79Z"
-        fill="#A66A44"
-        stroke="#2B1B17"
-        strokeWidth="4"
-      />
-      <ellipse
-        cx="40"
-        cy="51"
-        rx="15"
-        ry="17"
-        fill="#FFF4DC"
-        stroke="#2B1B17"
-        strokeWidth="3"
-      />
-      <ellipse
-        cx="70"
-        cy="51"
-        rx="15"
-        ry="17"
-        fill="#FFF4DC"
-        stroke="#2B1B17"
-        strokeWidth="3"
-      />
-      <circle cx="43" cy="53" r="4" fill="#2B1B17" />
-      <circle cx="67" cy="53" r="4" fill="#2B1B17" />
-      <path
-        d="m50 67 8-1 3 8-7 4-7-5z"
-        fill="#E8452C"
-        stroke="#2B1B17"
-        strokeWidth="2"
-      />
-      <path
-        d="M28 89q27-17 54 0"
-        fill="none"
-        stroke="#FFF4DC"
-        strokeWidth="4"
-        strokeLinecap="round"
-      />
+    <svg className="owl" viewBox="0 0 110 110" role="img" aria-label="Pip the curious cat">
+      <path d="M84 94C104 96 102 62 90 60" fill="none" stroke="#2B1B17" strokeWidth="15" strokeLinecap="round" />
+      <path d="M84 94C104 96 102 62 90 60" fill="none" stroke="#F6B91E" strokeWidth="7" strokeLinecap="round" />
+      <ellipse cx="55" cy="88" rx="30" ry="19" fill="#F6B91E" stroke="#2B1B17" strokeWidth="4" />
+      <ellipse cx="55" cy="92" rx="15" ry="12" fill="#FFF4DC" />
+      <path d="M22 42 19 9l27 14ZM88 42l3-33-27 14Z" fill="#F6B91E" stroke="#2B1B17" strokeWidth="4" strokeLinejoin="round" />
+      <path d="M26 30 25 17l12 7ZM84 30l1-13-12 7Z" fill="#FF8FB1" />
+      <ellipse cx="55" cy="52" rx="38" ry="29" fill="#F6B91E" stroke="#2B1B17" strokeWidth="4" />
+      <path d="M55 24v9M45 26l2 8M65 26l-2 8" stroke="#E8452C" strokeWidth="3.5" strokeLinecap="round" />
+      <ellipse cx="39" cy="52" rx="6.5" ry="8" fill="#2B1B17" />
+      <ellipse cx="71" cy="52" rx="6.5" ry="8" fill="#2B1B17" />
+      <circle cx="41.5" cy="49" r="2.6" fill="#FFF4DC" />
+      <circle cx="73.5" cy="49" r="2.6" fill="#FFF4DC" />
+      <circle cx="27" cy="63" r="6" fill="#FF8FB1" opacity=".75" />
+      <circle cx="83" cy="63" r="6" fill="#FF8FB1" opacity=".75" />
+      <path d="M51 60h8l-4 5Z" fill="#FF8FB1" stroke="#2B1B17" strokeWidth="2.5" strokeLinejoin="round" />
+      <path d="M55 65q-4 6-9 3M55 65q4 6 9 3" fill="none" stroke="#2B1B17" strokeWidth="3" strokeLinecap="round" />
+      <path d="M24 59 8 56M24 66 9 70M86 59l16-3M86 66l15 4" stroke="#2B1B17" strokeWidth="2.5" strokeLinecap="round" />
+      <ellipse cx="42" cy="101" rx="9" ry="6" fill="#FFF4DC" stroke="#2B1B17" strokeWidth="3" />
+      <ellipse cx="68" cy="101" rx="9" ry="6" fill="#FFF4DC" stroke="#2B1B17" strokeWidth="3" />
     </svg>
-  );
+  )
 }
 
 function SectionTitle({
@@ -108,6 +76,7 @@ function SectionTitle({
     </div>
   );
 }
+const inflight = new Map<string, Promise<DailyContent>>()
 
 export default function DailyDelight() {
   const [today, setToday] = useState<string | null>(null);
@@ -167,19 +136,27 @@ export default function DailyDelight() {
     const recentTopics = days
       .slice(0, 14)
       .map((item) => item.day.content.topic);
-    fetch("/api/daily", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        date: localToday,
-        topics: prefs.topics,
-        recentTopics,
-      }),
-    })
-      .then(async (response) => {
-        if (!response.ok) throw new Error("fallback");
-        return response.json() as Promise<DailyContent>;
+    let request = inflight.get(localToday);
+    if (!request) {
+      request = fetch("/api/daily", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          date: localToday,
+          topics: prefs.topics,
+          recentTopics,
+        }),
       })
+        .then(async (response) => {
+          if (!response.ok) throw new Error("fallback");
+          return response.json() as Promise<DailyContent>;
+        })
+        .finally(() => {
+          inflight.delete(localToday);
+        });
+      inflight.set(localToday, request);
+    }
+    request
       .then((content) => {
         const result = { content };
         writeDay(localToday, result);
