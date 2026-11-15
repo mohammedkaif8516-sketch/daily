@@ -1,4 +1,8 @@
 import { NextResponse } from 'next/server'
+import { mkdir, writeFile, appendFile } from 'node:fs/promises'
+import path from 'node:path'
+
+export const runtime = 'nodejs'
 
 const GEMINI_MODEL = 'gemini-3.5-flash-lite'
 
@@ -8,6 +12,25 @@ type DailyContent = {
     paragraph: { text: string; keyTerm: string }
     story: { title: string; text: string; moral: string }
     quiz: { question: string; options: [string, string, string]; answerIndex: number }
+}
+
+const LOG_DIR = path.join(process.cwd(), 'data', 'responses')
+
+async function saveToFile(kind: 'ok' | 'fail', date: string, provider: string, payload: unknown) {
+    if (process.env.NODE_ENV === 'production') return // Vercel's filesystem is read-only
+    try {
+        await mkdir(LOG_DIR, { recursive: true })
+        const stamp = new Date().toISOString().replace(/[:.]/g, '-')
+        const record = { savedAt: new Date().toISOString(), date, provider, payload }
+
+        // one pretty file per request
+        await writeFile(path.join(LOG_DIR, `${stamp}_${kind}_${provider}.json`), JSON.stringify(record, null, 2), 'utf8')
+
+        // plus one running log with one line per request
+        await appendFile(path.join(LOG_DIR, 'all.jsonl'), JSON.stringify(record) + '\n', 'utf8')
+    } catch (err) {
+        console.error('[daily] could not write response file:', err)
+    }
 }
 
 function isDailyContent(value: unknown): value is DailyContent {
@@ -120,7 +143,7 @@ Rules:
                                     required: ['question', 'options', 'answerIndex'],
                                 },
                             },
-                            required: ['topic', 'fact', 'paragraph', 'story', 'quiz'],
+                              required: ['topic', 'fact', 'paragraph', 'story', 'quiz', 'quote', 'word', 'challenge', 'owlSays'],
                         },
                     },
                 }),
@@ -131,6 +154,7 @@ Rules:
         if (!response.ok) {
             const errorText = await response.text()
             console.error('Gemini error:', response.status, errorText)
+            await saveToFile('fail', date, 'gemini', { error: `HTTP ${response.status}: ${errorText}` })
             return NextResponse.json(
                 {
                     error: 'generation_failed',
@@ -145,6 +169,7 @@ Rules:
 
         if (typeof raw !== 'string') {
             console.error('Missing text in Gemini candidate:', JSON.stringify(result))
+            await saveToFile('fail', date, 'gemini', { error: 'missing_text_in_candidate', details: result })
             return NextResponse.json(
                 {
                     error: 'invalid_response',
@@ -158,6 +183,7 @@ Rules:
 
         if (!isDailyContent(parsed)) {
             console.error('Schema validation failed:', parsed)
+            await saveToFile('fail', date, 'gemini', { error: 'schema_validation_failed', received: parsed })
             return NextResponse.json(
                 {
                     error: 'invalid_content',
@@ -167,11 +193,15 @@ Rules:
             )
         }
 
+        console.log(`[daily] served by gemini`)
+        await saveToFile('ok', date, 'gemini', parsed)
+
         return NextResponse.json(parsed, {
             headers: { 'Cache-Control': 'no-store' },
         })
     } catch (err) {
         console.error('Daily route error:', err)
+        await saveToFile('fail', date, 'gemini', { error: err instanceof Error ? err.message : String(err) })
         return NextResponse.json(
             {
                 error: 'generation_failed',

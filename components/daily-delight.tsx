@@ -349,9 +349,7 @@ export default function DailyDelight() {
               </em>
             </div>
           </div>
-          <div className="hand-note">
-            A fresh little thing for your curious brain <span>↘</span>
-          </div>
+          <div className="hand-note">{day ? `Today’s wonder: ${day.content.topic}` : 'A fresh little thing for your curious brain'} <span>↘</span></div>
           <div className="streak-ribbon">
             ✳ DAY #{streak} OF YOUR LEARNING STREAK ✳
           </div>
