@@ -125,6 +125,7 @@ export default function DailyDelight() {
     { date: string; day: SavedDay }[] | null
   >(null);
   const [readStatus, setReadStatus] = useState("");
+  const [openPin, setOpenPin] = useState<string | null>(null);
 
   useEffect(() => {
     const localToday = dateKey(new Date());
@@ -166,14 +167,31 @@ export default function DailyDelight() {
     const recentTopics = days
       .slice(0, 14)
       .map((item) => item.day.content.topic);
-    fetch('/api/daily', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ date: localToday, topics: prefs.topics, recentTopics }) })
-  .then(async response => { if (!response.ok) throw new Error('fallback'); return response.json() as Promise<DailyContent> })
-  .then(content => { const result = { content }; writeDay(localToday, result); setDay(result) })
-  .catch(() => {
-    const content = fallback[(new Date(`${localToday}T12:00:00`).getDate() - 1) % fallback.length] as DailyContent
-    setDay({ content })
-  })
-  .finally(() => setLoading(false));
+    fetch("/api/daily", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        date: localToday,
+        topics: prefs.topics,
+        recentTopics,
+      }),
+    })
+      .then(async (response) => {
+        if (!response.ok) throw new Error("fallback");
+        return response.json() as Promise<DailyContent>;
+      })
+      .then((content) => {
+        const result = { content };
+        writeDay(localToday, result);
+        setDay(result);
+      })
+      .catch(() => {
+        const content = fallback[
+          (new Date(`${localToday}T12:00:00`).getDate() - 1) % fallback.length
+        ] as DailyContent;
+        setDay({ content });
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   const toggleFavorite = (kind: string, title: string, text: string) => {
@@ -198,9 +216,11 @@ export default function DailyDelight() {
     writeDay(today, next);
   };
   const toggleChallenge = () => {
-    if (!day || !today || !displayingToday) return
-    const next = { ...day, challengeDone: !day.challengeDone }; setDay(next); writeDay(today, next)
-  }
+    if (!day || !today || !displayingToday) return;
+    const next = { ...day, challengeDone: !day.challengeDone };
+    setDay(next);
+    writeDay(today, next);
+  };
   const chooseTopic = (topic: string) => {
     const currentTopics = selectedTopics ?? [];
     const next = currentTopics.includes(topic)
@@ -227,10 +247,18 @@ export default function DailyDelight() {
     setTeared(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
-    const displayingToday = day && !(archive ?? []).some(item => item.day === day)
-  const topicsLearned = Array.from(new Set([...(day ? [day.content.topic] : []), ...(archive ?? []).map(item => item.day.content.topic)]))
-  const daysLearned = (archive ?? []).length + (day ? 1 : 0)
-  const challengesDone = (archive ?? []).filter(item => item.day.challengeDone).length + (day?.challengeDone ? 1 : 0)
+  const displayingToday =
+    day && !(archive ?? []).some((item) => item.day === day);
+  const topicsLearned = Array.from(
+    new Set([
+      ...(day ? [day.content.topic] : []),
+      ...(archive ?? []).map((item) => item.day.content.topic),
+    ]),
+  );
+  const daysLearned = (archive ?? []).length + (day ? 1 : 0);
+  const challengesDone =
+    (archive ?? []).filter((item) => item.day.challengeDone).length +
+    (day?.challengeDone ? 1 : 0);
 
   if (!mounted || !today) {
     return (
@@ -348,11 +376,24 @@ export default function DailyDelight() {
         </div>
         <div className="desk-note">
           <span className="tape" />
-          <p>“{day?.content.quote?.text ?? 'The world is full of tiny doors. Today we found one.'}”</p><small>— {(day?.content.quote?.author ?? 'Pip, chief page-turner').toUpperCase()}</small>
+          <p>
+            “
+            {day?.content.quote?.text ??
+              "The world is full of tiny doors. Today we found one."}
+            ”
+          </p>
+          <small>
+            —{" "}
+            {(
+              day?.content.quote?.author ?? "Pip, chief page-turner"
+            ).toUpperCase()}
+          </small>
         </div>
         <div className="mascot-note">
           <Owl />
-          <div className="speech">{day?.content.owlSays ?? 'Ooh, this one’s a good one!'}</div>
+          <div className="speech">
+            {day?.content.owlSays ?? "Ooh, this one’s a good one!"}
+          </div>
         </div>
         <div className="read-knob-wrap">
           <button
@@ -546,25 +587,85 @@ export default function DailyDelight() {
         </>
       )}
 
-      {day && !loading && <>
-      <div className="extras-grid">
-        {day.content.word && <section className="extra-card word-card" aria-labelledby="word-title"><span className="extra-kicker">05 / WORD OF THE DAY</span><h2 id="word-title">{day.content.word.word}</h2><p className="word-pos">{day.content.word.partOfSpeech}</p><p>{day.content.word.meaning}</p><p className="word-example">“{day.content.word.example}”</p></section>}
-        {day.content.onThisDay && <section className="extra-card history-card" aria-labelledby="history-title"><span className="extra-kicker">06 / ON THIS DAY</span><h2 id="history-title">{day.content.onThisDay.year}</h2><p>{day.content.onThisDay.event}</p></section>}
-        {day.content.challenge && <section className="extra-card challenge-card" aria-labelledby="challenge-title"><span className="extra-kicker">07 / TRY THIS TODAY</span><h2 id="challenge-title">A tiny challenge</h2><p>{day.content.challenge}</p>{displayingToday && <button className={`challenge-btn ${day.challengeDone ? 'done' : ''}`} onClick={toggleChallenge} aria-pressed={Boolean(day.challengeDone)}>{day.challengeDone ? 'Done! Gold star earned ★' : 'I did it'}</button>}</section>}
-      </div>
-      <section className="log-section">
-        <SectionTitle kicker="YOUR LEARNING LOG">What you’ve collected so far</SectionTitle>
-        <div className="log-stats">
-          <div className="log-stat"><b>{daysLearned}</b><span>pages read</span></div>
-          <div className="log-stat"><b>{streak}</b><span>day streak</span></div>
-          <div className="log-stat"><b>{(favorite ?? []).length}</b><span>things pinned</span></div>
-          <div className="log-stat"><b>{challengesDone}</b><span>challenges done</span></div>
-        </div>
-        <div className="log-topics">{topicsLearned.map(t => <span key={t}>{t}</span>)}</div>
-      </section>
-    </>}
+      {day && !loading && (
+        <>
+          <div className="extras-grid">
+            {day.content.word && (
+              <section
+                className="extra-card word-card"
+                aria-labelledby="word-title"
+              >
+                <span className="extra-kicker">05 / WORD OF THE DAY</span>
+                <h2 id="word-title">{day.content.word.word}</h2>
+                <p className="word-pos">{day.content.word.partOfSpeech}</p>
+                <p>{day.content.word.meaning}</p>
+                <p className="word-example">“{day.content.word.example}”</p>
+              </section>
+            )}
+            {day.content.onThisDay && (
+              <section
+                className="extra-card history-card"
+                aria-labelledby="history-title"
+              >
+                <span className="extra-kicker">06 / ON THIS DAY</span>
+                <h2 id="history-title">{day.content.onThisDay.year}</h2>
+                <p>{day.content.onThisDay.event}</p>
+              </section>
+            )}
+            {day.content.challenge && (
+              <section
+                className="extra-card challenge-card"
+                aria-labelledby="challenge-title"
+              >
+                <span className="extra-kicker">07 / TRY THIS TODAY</span>
+                <h2 id="challenge-title">A tiny challenge</h2>
+                <p>{day.content.challenge}</p>
+                {displayingToday && (
+                  <button
+                    className={`challenge-btn ${day.challengeDone ? "done" : ""}`}
+                    onClick={toggleChallenge}
+                    aria-pressed={Boolean(day.challengeDone)}
+                  >
+                    {day.challengeDone
+                      ? "Done! Gold star earned ★"
+                      : "I did it"}
+                  </button>
+                )}
+              </section>
+            )}
+          </div>
+          <section className="log-section">
+            <SectionTitle kicker="YOUR LEARNING LOG">
+              What you’ve collected so far
+            </SectionTitle>
+            <div className="log-stats">
+              <div className="log-stat">
+                <b>{daysLearned}</b>
+                <span>pages read</span>
+              </div>
+              <div className="log-stat">
+                <b>{streak}</b>
+                <span>day streak</span>
+              </div>
+              <div className="log-stat">
+                <b>{(favorite ?? []).length}</b>
+                <span>things pinned</span>
+              </div>
+              <div className="log-stat">
+                <b>{challengesDone}</b>
+                <span>challenges done</span>
+              </div>
+            </div>
+            <div className="log-topics">
+              {topicsLearned.map((t) => (
+                <span key={t}>{t}</span>
+              ))}
+            </div>
+          </section>
+        </>
+      )}
 
-    <section className="topics-section">
+      <section className="topics-section">
         <SectionTitle kicker="YOUR CURIOSITY COMPASS">
           Pick a few favorite topics
         </SectionTitle>
@@ -600,16 +701,33 @@ export default function DailyDelight() {
         {(favorite ?? []).length ? (
           <div className="scrapbook-wall">
             {(favorite ?? []).map((item, i) => (
-              <article className={`saved-note saved-${i % 4}`} key={item.id}>
+              <article
+                className={`saved-note saved-${i % 4} ${openPin === item.id ? "open" : ""}`}
+                key={item.id}
+              >
                 <span className="pin-dot" />
                 <span className="saved-kind">
                   {item.kind} · {item.date}
                 </span>
                 <h3>{item.title}</h3>
-                <p>
-                  {item.text.slice(0, 156)}
-                  {item.text.length > 156 ? "…" : ""}
+                <p className={openPin === item.id ? "saved-full" : ""}>
+                  {openPin === item.id || item.text.length <= 156
+                    ? item.text
+                    : `${item.text.slice(0, 156)}…`}
                 </p>
+                {item.text.length > 156 && (
+                  <button
+                    className="pin-toggle"
+                    onClick={() =>
+                      setOpenPin(openPin === item.id ? null : item.id)
+                    }
+                    aria-expanded={openPin === item.id}
+                  >
+                    {openPin === item.id
+                      ? "Show less ↑"
+                      : "Read the whole thing ↓"}
+                  </button>
+                )}
                 <button
                   onClick={() => {
                     const next = (favorite ?? []).filter(

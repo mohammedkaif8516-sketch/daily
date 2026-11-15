@@ -29,3 +29,49 @@
 .log-stat span { font-family: 'Space Mono', monospace; font-size: .7rem; text-transform: uppercase; }
 .log-topics { display: flex; flex-wrap: wrap; gap: .6rem; }
 .log-topics span { background: #F6B91E; border: 2px solid #2B1B17; padding: .2rem .7rem; font-size: .9rem; }
+.paper-clip,
+.collage-card::before,
+.collage-card::after {
+  pointer-events: none;
+}
+
+.card-topline {
+  position: relative;
+  z-index: 5;
+}
+
+.heart {
+  position: relative;
+  z-index: 6;
+  cursor: pointer;
+}
+.scrapbook-wall { align-items: flex-start; }
+
+.saved-note.open {
+  position: relative;
+  z-index: 10;
+  max-height: none;
+  height: auto;
+  min-width: min(360px, 100%);
+}
+
+.saved-full {
+  white-space: pre-line;
+  max-height: none;
+  overflow: visible;
+  display: block;
+}
+
+.pin-toggle {
+  display: block;
+  margin: .5rem 0 .25rem;
+  padding: 0;
+  background: none;
+  border: none;
+  font-family: 'Caveat', 'Gaegu', cursive;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #E8452C;
+  text-decoration: underline;
+  cursor: pointer;
+}
