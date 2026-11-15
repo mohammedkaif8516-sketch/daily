@@ -41,3 +41,9 @@ yarn-error.log*
 next-env.d.ts
 
 /data/responses
+.open-next
+.dev.vars
+# Wrangler
+.wrangler
+.open-next
+.dev.vars*
