@@ -75,3 +75,369 @@
   text-decoration: underline;
   cursor: pointer;
 }
+/* =====================================================================
+   Daily Delight, round 2
+   Append this to the END of app/globals.css.
+   Sections: 1 cat animations, 2 page turning, 3 page navigation,
+             4 archive rail, 5 mobile layout
+   ===================================================================== */
+
+/* ---------- 1. PIP THE CAT ---------- */
+
+.cat-svg { overflow: visible; }
+.cat-svg.is-pettable { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.cat-svg:focus-visible { outline: 3px dashed #E8452C; outline-offset: 6px; border-radius: 12px; }
+
+/* Breathing: a very slow, tiny swell of the whole body. */
+.cat-all {
+  transform-origin: 55px 106px;
+  animation: cat-breathe 3.6s ease-in-out infinite;
+}
+@keyframes cat-breathe {
+  0%, 100% { transform: scale(1, 1); }
+  50%      { transform: scale(1.012, 1.024); }
+}
+
+/* Tail: rests, then gives a lazy double swish every few seconds. */
+.cat-tail {
+  transform-origin: 84px 94px;
+  animation: cat-tail 5.5s ease-in-out infinite;
+}
+@keyframes cat-tail {
+  0%, 52%, 100% { transform: rotate(0deg); }
+  60% { transform: rotate(-16deg); }
+  68% { transform: rotate(11deg); }
+  76% { transform: rotate(-12deg); }
+  84% { transform: rotate(7deg); }
+  92% { transform: rotate(0deg); }
+}
+
+/* Ears: independent little twitches on different clocks. */
+.cat-ear-l { transform-origin: 30px 38px; animation: cat-twitch-l 7s ease-in-out infinite; }
+.cat-ear-r { transform-origin: 80px 38px; animation: cat-twitch-r 9s ease-in-out infinite 2.5s; }
+@keyframes cat-twitch-l {
+  0%, 86%, 100% { transform: rotate(0deg); }
+  89% { transform: rotate(-10deg); }
+  92% { transform: rotate(3deg); }
+  95% { transform: rotate(-6deg); }
+}
+@keyframes cat-twitch-r {
+  0%, 84%, 100% { transform: rotate(0deg); }
+  88% { transform: rotate(11deg); }
+  92% { transform: rotate(-3deg); }
+  96% { transform: rotate(6deg); }
+}
+
+/* Blink. */
+.cat-eyes {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: cat-blink 4.4s infinite;
+}
+@keyframes cat-blink {
+  0%, 91%, 100% { transform: scaleY(1); }
+  94% { transform: scaleY(0.08); }
+}
+
+/* Glance left and right now and then. */
+.cat-look { animation: cat-look 11s ease-in-out infinite 1s; }
+@keyframes cat-look {
+  0%, 38%, 100% { transform: translate(0, 0); }
+  44%, 54% { transform: translate(-2.4px, 0.4px); }
+  62%, 72% { transform: translate(2.4px, -0.6px); }
+  80% { transform: translate(0, 0); }
+}
+
+/* The paw lick: a 15 second loop where the action takes about 7 seconds.
+   The head dips, the eyes close, the paw rises and the tongue flicks. */
+.cat-paw-r  { animation: cat-lick-paw 15s ease-in-out infinite 3s; }
+.cat-leg    { opacity: 0; animation: cat-lick-leg 15s linear infinite 3s; }
+.cat-head   { transform-origin: 55px 80px; animation: cat-lick-head 15s ease-in-out infinite 3s; }
+.cat-eyes-lick {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: cat-lick-eyes 15s ease-in-out infinite 3s;
+}
+.cat-tongue {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: top center;
+  animation: cat-lick-tongue 15s ease-in-out infinite 3s;
+}
+
+@keyframes cat-lick-paw {
+  0%, 28% { transform: translate(0, 0); }
+  33% { transform: translate(-6px, -29px); }
+  36% { transform: translate(-6px, -32px); }
+  39% { transform: translate(-6px, -28px); }
+  42% { transform: translate(-6px, -32px); }
+  45% { transform: translate(-6px, -28px); }
+  48% { transform: translate(-6px, -31px); }
+  53%, 100% { transform: translate(0, 0); }
+}
+@keyframes cat-lick-leg {
+  0%, 28% { opacity: 0; }
+  31%, 50% { opacity: 1; }
+  54%, 100% { opacity: 0; }
+}
+@keyframes cat-lick-head {
+  0%, 28% { transform: rotate(0deg); }
+  33%, 48% { transform: rotate(5deg); }
+  53%, 100% { transform: rotate(0deg); }
+}
+@keyframes cat-lick-eyes {
+  0%, 30% { transform: scaleY(1); }
+  33%, 48% { transform: scaleY(0.1); }
+  52%, 100% { transform: scaleY(1); }
+}
+@keyframes cat-lick-tongue {
+  0%, 33% { opacity: 0; transform: scale(1, 1); }
+  35% { opacity: 1; transform: scale(1, 1); }
+  38% { transform: scale(1.1, 1.3); }
+  41% { transform: scale(1, 0.9); }
+  44% { transform: scale(1.1, 1.3); }
+  47% { transform: scale(1, 0.9); }
+  50% { opacity: 1; transform: scale(1.1, 1.2); }
+  52%, 100% { opacity: 0; transform: scale(1, 1); }
+}
+
+/* Petting: happy closed eyes, floating hearts, a tiny purr shake. */
+.cat-happy-eyes { display: none; }
+.cat-hearts { display: none; }
+.cat-heart {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: cat-heart-float 1.5s ease-out infinite;
+}
+.cat-hearts g:nth-child(2) .cat-heart { animation-delay: 0.4s; }
+.cat-hearts g:nth-child(3) .cat-heart { animation-delay: 0.8s; }
+@keyframes cat-heart-float {
+  0%   { opacity: 0; transform: translateY(6px) scale(0.5); }
+  20%  { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-30px) scale(1.15); }
+}
+@keyframes cat-purr {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(0.5px, -0.4px); }
+  75% { transform: translate(-0.5px, 0.4px); }
+}
+
+.cat-svg.is-purring .cat-happy-eyes { display: inline; }
+.cat-svg.is-purring .cat-hearts { display: inline; }
+.cat-svg.is-purring .cat-eyes-lick { display: none; }
+.cat-svg.is-purring .cat-all { animation: cat-purr 0.16s linear infinite; }
+.cat-svg.is-purring .cat-paw-r,
+.cat-svg.is-purring .cat-leg,
+.cat-svg.is-purring .cat-head,
+.cat-svg.is-purring .cat-tongue { animation: none; }
+.cat-svg.is-purring .cat-leg,
+.cat-svg.is-purring .cat-tongue { opacity: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cat-svg *, .turn-older, .turn-newer, .date-hero { animation: none !important; }
+}
+
+/* ---------- 2. PAGE TURNING ---------- */
+
+.turn-older { animation: turn-older 0.45s ease backwards; }
+.turn-newer { animation: turn-newer 0.45s ease backwards; }
+@keyframes turn-older {
+  from { opacity: 0; transform: translateX(-28px) rotate(-1.2deg); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes turn-newer {
+  from { opacity: 0; transform: translateX(28px) rotate(1.2deg); }
+  to   { opacity: 1; transform: none; }
+}
+.date-hero { animation: date-flip 0.5s ease backwards; transform-origin: 50% 0; }
+@keyframes date-flip {
+  from { opacity: 0; transform: perspective(500px) rotateX(-70deg); }
+  to   { opacity: 1; transform: perspective(500px) rotateX(0); }
+}
+
+/* ---------- 3. PAGE NAVIGATION (inside the calendar sheet) ---------- */
+
+.calendar-sheet { height: auto; }
+.page-nav {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 1.1rem;
+}
+.page-nav button,
+.rail-controls button {
+  font: inherit;
+  font-size: 0.95rem;
+  min-height: 40px;
+  padding: 0.3rem 0.85rem;
+  background: #FFF4DC;
+  color: #2B1B17;
+  border: 3px solid #2B1B17;
+  box-shadow: 3px 3px 0 #2B1B17;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.page-nav button:hover:not(:disabled),
+.rail-controls button:hover { transform: translate(-1px, -1px) rotate(-1deg); box-shadow: 4px 4px 0 #2B1B17; }
+.page-nav button:active:not(:disabled),
+.rail-controls button:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #2B1B17; }
+.page-nav button:disabled { opacity: 0.35; cursor: not-allowed; }
+.page-nav button:focus-visible,
+.rail-controls button:focus-visible,
+.rail-card:focus-visible { outline: 3px dashed #E8452C; outline-offset: 3px; }
+.page-nav .today-btn { background: #F6B91E; }
+.page-count { font-family: 'Space Mono', ui-monospace, monospace; font-size: 0.72rem; letter-spacing: 0.06em; }
+.page-hint { position: relative; z-index: 3; margin: 0.6rem 0 0; font-size: 0.85rem; opacity: 0.7; }
+
+/* ---------- 4. ARCHIVE RAIL ---------- */
+
+.rail-controls { display: flex; gap: 0.6rem; }
+.archive-rail {
+  position: relative;
+  display: flex;
+  gap: 1.1rem;
+  overflow-x: auto;
+  padding: 1.1rem 0.6rem 1.6rem;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #2B1B17 transparent;
+}
+.rail-card {
+  flex: 0 0 auto;
+  width: 152px;
+  scroll-snap-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  text-align: left;
+  font: inherit;
+  padding: 0.7rem 0.85rem 0.85rem;
+  color: #2B1B17;
+  background: #FFF4DC;
+  border: 3px solid #2B1B17;
+  box-shadow: 5px 5px 0 #2B1B17;
+  cursor: pointer;
+  transform: rotate(var(--tilt, 0deg));
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+.rail-card:nth-child(5n + 1) { --tilt: -1.5deg; }
+.rail-card:nth-child(5n + 2) { --tilt: 1.2deg; }
+.rail-card:nth-child(5n + 3) { --tilt: -0.6deg; }
+.rail-card:nth-child(5n + 4) { --tilt: 1.8deg; }
+.rail-card:nth-child(5n + 5) { --tilt: -1.1deg; }
+.rail-card:hover { transform: translateY(-4px) rotate(0deg); box-shadow: 7px 8px 0 #2B1B17; }
+.rail-card[aria-current="true"] { background: #F6B91E; box-shadow: 5px 5px 0 #E8452C, 7px 7px 0 #2B1B17; transform: translateY(-6px) rotate(0deg); }
+.rail-month { font-family: 'Space Mono', ui-monospace, monospace; font-size: 0.68rem; letter-spacing: 0.08em; color: #E8452C; }
+.rail-card[aria-current="true"] .rail-month { color: #2B1B17; }
+.rail-day { font-size: 2.4rem; line-height: 1; font-weight: 800; }
+.rail-topic { font-family: 'Space Mono', ui-monospace, monospace; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.8; }
+.rail-fact {
+  font-style: normal;
+  font-size: 0.85rem;
+  line-height: 1.3;
+  margin-top: 0.3rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ---------- 5. MOBILE AND TABLET ----------
+   !important is used on purpose below: the original stylesheet positions a
+   few of these pieces absolutely, and the phone layout has to undo that. */
+
+@media (max-width: 900px) {
+  html, body { max-width: 100%; overflow-x: clip; }
+  .desk { overflow-x: clip; padding-left: 16px !important; padding-right: 16px !important; }
+
+  /* header: ribbon and streak share a row, marquee drops underneath */
+  .topbar { display: flex !important; flex-wrap: wrap; align-items: flex-start; gap: 12px; }
+  .brand-ribbon { order: 1; flex: 1 1 0; min-width: 0; max-width: calc(100% - 100px); }
+  .brand-ribbon h1 { font-size: clamp(1.5rem, 7.5vw, 2.6rem) !important; white-space: nowrap; }
+  .brand-ribbon p { font-size: 0.6rem !important; letter-spacing: 0.08em; }
+  .streak-stamp {
+    order: 2;
+    position: static !important;
+    inset: auto !important;
+    margin: 0 !important;
+    flex: 0 0 auto;
+    display: inline-flex !important;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    min-width: 78px;
+    padding: 0.4rem 0.65rem !important;
+    white-space: nowrap;
+    transform: rotate(3deg) !important;
+  }
+  .streak-stamp .flame { font-size: 1rem; line-height: 1; }
+  .streak-stamp b { font-size: 1.6rem; line-height: 1; }
+  .streak-stamp small { font-size: 0.55rem; letter-spacing: 0.08em; }
+  .marquee { order: 3; flex: 1 1 100%; width: 100%; }
+
+  /* the collage of calendar, quote note, cat and radio becomes one column */
+  .top-composition {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch;
+    gap: 1.4rem;
+    height: auto !important;
+    min-height: 0 !important;
+  }
+  .top-composition > * {
+    position: relative !important;
+    inset: auto !important;
+    width: auto !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
+  .calendar-sheet { width: 100% !important; }
+  .date-hero strong { font-size: clamp(4.6rem, 26vw, 8rem) !important; }
+  .desk-note { align-self: center; max-width: 440px !important; }
+  .mascot-note { display: flex !important; align-items: center; gap: 14px; }
+  .mascot-note .owl { width: 104px !important; height: 104px !important; flex: 0 0 auto; }
+  .mascot-note .speech {
+    position: relative !important;
+    inset: auto !important;
+    flex: 1 1 auto;
+    transform: rotate(-1.5deg);
+    max-width: 240px;
+  }
+  .read-knob-wrap { display: flex !important; align-items: center; gap: 12px; }
+
+  /* main content */
+  .content-grid {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 1.6rem !important;
+  }
+  .content-grid > * { width: auto !important; max-width: 100% !important; margin: 0 !important; }
+  .collage-card { padding-left: 1.2rem !important; padding-right: 1.2rem !important; }
+  .fact-card h2 { font-size: clamp(1.4rem, 6.4vw, 2.1rem) !important; }
+  .wow-burst { scale: 0.8; }
+  .reaction-strip { flex-direction: column !important; align-items: flex-start !important; gap: 0.9rem; }
+  .reactions { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+  .reaction { min-height: 44px; }
+  .extras-grid { grid-template-columns: minmax(0, 1fr); gap: 1.6rem; }
+  .log-stat { flex: 1 1 calc(50% - 0.75rem); min-width: 0; }
+  .topic-pins { display: flex; flex-wrap: wrap; gap: 0.7rem; }
+  .pin { min-height: 44px; }
+  .section-heading-row { flex-wrap: wrap; gap: 0.75rem; }
+  .scrapbook-wall { display: grid !important; grid-template-columns: minmax(0, 1fr) !important; gap: 1.4rem !important; }
+  .saved-note { width: auto !important; max-width: 100% !important; margin: 0 !important; }
+  .colophon { padding-left: 8px; padding-right: 8px; text-align: center; }
+}
+
+@media (max-width: 520px) {
+  .brand-sun { display: none; }
+  .page-nav button { flex: 1 1 auto; }
+  .page-count { order: -1; flex: 1 1 100%; }
+  .rail-card { width: 136px; }
+  .quiz-options button { min-height: 48px; }
+  }
