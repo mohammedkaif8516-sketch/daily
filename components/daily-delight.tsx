@@ -43,12 +43,15 @@ const atNoon = (value: string) => new Date(`${value}T12:00:00`);
 
 type ArchiveItem = { date: string; day: SavedDay };
 type Direction = "older" | "newer";
+<<<<<<< HEAD
 type Toast = {
   id: number;
   kind: "badge" | "level" | "quest";
   title: string;
   text: string;
 };
+=======
+>>>>>>> fb21d0829a27ef95fffa9db8c44e9310a45e1e1d
 
 /* ------------------------------------------------------------------ */
 /* Pip the cat. Every moving part is its own group so CSS can animate  */
@@ -177,16 +180,24 @@ export default function DailyDelight() {
   const [selectedTopics, setSelectedTopics] = useState<string[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [teared, setTeared] = useState(false);
+<<<<<<< HEAD
+=======
+  const [answer, setAnswer] = useState<number | null>(null);
+>>>>>>> fb21d0829a27ef95fffa9db8c44e9310a45e1e1d
   const [archive, setArchive] = useState<ArchiveItem[] | null>(null);
   const [readStatus, setReadStatus] = useState("");
   const [openPin, setOpenPin] = useState<string | null>(null);
   const [purring, setPurring] = useState(false);
+<<<<<<< HEAD
   const [catLine, setCatLine] = useState<string | null>(null);
   const [game, setGameState] = useState<GameState>(emptyGame);
   const [toasts, setToasts] = useState<Toast[]>([]);
 
   const gameRef = useRef<GameState>(emptyGame());
   const toastId = useRef(0);
+=======
+
+>>>>>>> fb21d0829a27ef95fffa9db8c44e9310a45e1e1d
   const railRef = useRef<HTMLDivElement>(null);
   const purrTimer = useRef<number | null>(null);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
@@ -205,12 +216,19 @@ export default function DailyDelight() {
   const pageIndex = rawIndex < 0 ? 0 : rawIndex;
   const hasOlder = pageIndex < pageDates.length - 1;
   const hasNewer = pageIndex > 0;
+<<<<<<< HEAD
   const viewGame: DayGame = (viewDate && game.days[viewDate]) || {};
   const answer = viewGame.answer ?? null;
+=======
+>>>>>>> fb21d0829a27ef95fffa9db8c44e9310a45e1e1d
 
   const goTo = (date: string, dir: Direction) => {
     setDirection(dir);
     setViewing(date === today ? null : date);
+<<<<<<< HEAD
+=======
+    setAnswer(null);
+>>>>>>> fb21d0829a27ef95fffa9db8c44e9310a45e1e1d
     setTeared(false);
     setOpenPin(null);
   };
@@ -382,12 +400,18 @@ export default function DailyDelight() {
   const chooseReaction = (reaction: string) => {
     if (!viewDate || !day) return;
     updateDay(viewDate, { reaction });
+<<<<<<< HEAD
     awardXp(viewDate, "react", XP.react);
+=======
+>>>>>>> fb21d0829a27ef95fffa9db8c44e9310a45e1e1d
   };
   const toggleChallenge = () => {
     if (!viewDate || !day || !isToday) return;
     updateDay(viewDate, { challengeDone: !day.challengeDone });
+<<<<<<< HEAD
     if (!day.challengeDone) awardXp(viewDate, "challenge", XP.challenge);
+=======
+>>>>>>> fb21d0829a27ef95fffa9db8c44e9310a45e1e1d
   };
   const chooseTopic = (topic: string) => {
     const currentTopics = selectedTopics ?? [];
@@ -410,6 +434,7 @@ export default function DailyDelight() {
     window.speechSynthesis.speak(speech);
     setReadStatus("Pip is reading this page aloud.");
   };
+<<<<<<< HEAD
   const celebrate = (line?: string) => {
     setCatLine(line ?? null);
     setPurring(true);
@@ -485,6 +510,13 @@ export default function DailyDelight() {
     document
       .getElementById(id)
       ?.scrollIntoView({ behavior: "smooth", block: "center" });
+=======
+  const petCat = () => {
+    setPurring(true);
+    if (purrTimer.current) window.clearTimeout(purrTimer.current);
+    purrTimer.current = window.setTimeout(() => setPurring(false), 2800);
+  };
+>>>>>>> fb21d0829a27ef95fffa9db8c44e9310a45e1e1d
   const scrollRail = (dir: 1 | -1) => {
     railRef.current?.scrollBy({
       left: dir * (railRef.current.clientWidth * 0.8),
@@ -520,6 +552,7 @@ export default function DailyDelight() {
     (archive ?? []).filter((item) => item.day.challengeDone).length +
     (todayDay?.challengeDone ? 1 : 0);
 
+<<<<<<< HEAD
   const lvl = levelInfo(game.xp);
   const questDay: DayGame = (today && game.days[today]) || {};
   const questHasChallenge = Boolean(todayDay?.content.challenge);
@@ -575,6 +608,8 @@ export default function DailyDelight() {
     return () => window.clearTimeout(timer);
   }, [headToastId]);
 
+=======
+>>>>>>> fb21d0829a27ef95fffa9db8c44e9310a45e1e1d
   if (!mounted || !today || !viewDate) {
     return (
       <main className="desk" aria-busy="true">
@@ -749,7 +784,11 @@ export default function DailyDelight() {
           <Cat purring={purring} onPet={petCat} />
           <div className="speech">
             {purring
+<<<<<<< HEAD
               ? (catLine ?? "Purrrr…")
+=======
+              ? "Purrrr… right behind the ears!"
+>>>>>>> fb21d0829a27ef95fffa9db8c44e9310a45e1e1d
               : (day?.content.owlSays ?? "Ooh, this one’s a good one!")}
           </div>
         </div>
