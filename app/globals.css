@@ -75,3 +75,700 @@
   text-decoration: underline;
   cursor: pointer;
 }
+/* =====================================================================
+   Daily Delight, round 3: the game layer.
+   Append this to the END of app/globals.css (after extras.css).
+   ===================================================================== */
+
+/* ---------- HUD: level card + daily quest ---------- */
+
+.game-hud {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  gap: 1.6rem;
+  margin: 2.4rem 0 0.8rem;
+  align-items: stretch;
+}
+.level-card,
+.quest-card {
+  background: #FFF4DC;
+  color: #2B1B17;
+  border: 3px solid #2B1B17;
+  box-shadow: 6px 6px 0 #2B1B17;
+  padding: 1rem 1.2rem;
+}
+.level-card { display: flex; align-items: center; gap: 1rem; transform: rotate(-0.8deg); }
+.quest-card { transform: rotate(0.7deg); }
+
+.level-badge {
+  flex: 0 0 auto;
+  width: 64px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  background: #E8452C;
+  color: #FFF4DC;
+  border: 3px solid #2B1B17;
+  border-radius: 50% 46% 52% 48%;
+  box-shadow: 3px 3px 0 #2B1B17;
+  font-size: 1.9rem;
+  font-weight: 800;
+  transform: rotate(-6deg);
+}
+.level-meta { flex: 1 1 auto; min-width: 0; }
+.level-kicker,
+.quest-kicker {
+  display: block;
+  font-family: 'Space Mono', ui-monospace, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  color: #E8452C;
+}
+.level-title { display: block; font-size: 1.3rem; line-height: 1.15; }
+.xp-bar {
+  height: 18px;
+  margin: 0.5rem 0 0.35rem;
+  background: #FFF4DC;
+  border: 3px solid #2B1B17;
+  overflow: hidden;
+}
+.xp-bar span {
+  display: block;
+  height: 100%;
+  background: repeating-linear-gradient(135deg, #F6B91E 0 8px, #FFD65C 8px 16px);
+  border-right: 3px solid #2B1B17;
+  transition: width 0.7s cubic-bezier(0.2, 0.9, 0.3, 1.15);
+}
+.xp-text { font-size: 0.85rem; opacity: 0.8; }
+
+.quest-list { list-style: none; margin: 0.55rem 0 0.4rem; padding: 0; display: grid; gap: 0.35rem; }
+.quest-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  min-height: 36px;
+  padding: 0.15rem 0;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+}
+button.quest-item { cursor: pointer; }
+button.quest-item:hover .quest-text { text-decoration: underline wavy #E8452C; text-underline-offset: 4px; }
+button.quest-item:focus-visible { outline: 3px dashed #E8452C; outline-offset: 3px; }
+.quest-box {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  background: #FFF4DC;
+  border: 3px solid #2B1B17;
+  transform: rotate(-3deg);
+}
+.quest-item.done .quest-box { background: #8CC63F; animation: quest-stamp 0.4s ease; }
+.quest-item.done .quest-text { text-decoration: line-through; text-decoration-thickness: 2px; opacity: 0.6; }
+.quest-xp {
+  margin-left: auto;
+  font-style: normal;
+  font-family: 'Space Mono', ui-monospace, monospace;
+  font-size: 0.75rem;
+  color: #E8452C;
+}
+.quest-note { margin: 0.35rem 0 0; font-size: 0.9rem; opacity: 0.8; }
+.quest-note.complete { color: #E8452C; font-weight: 700; opacity: 1; }
+@keyframes quest-stamp {
+  0%   { transform: scale(1.9) rotate(-14deg); opacity: 0; }
+  100% { transform: scale(1) rotate(-3deg); opacity: 1; }
+}
+
+/* ---------- toast: one sticker slapped onto the bottom of the screen ---------- */
+
+.toast-wrap {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: max(16px, env(safe-area-inset-bottom));
+  z-index: 60;
+  display: flex;
+  justify-content: center;
+  padding: 0 12px;
+  pointer-events: none;
+}
+.toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  max-width: 420px;
+  padding: 0.7rem 1.1rem;
+  text-align: left;
+  font: inherit;
+  color: #2B1B17;
+  background: #F6B91E;
+  border: 3px solid #2B1B17;
+  box-shadow: 6px 6px 0 #2B1B17;
+  cursor: pointer;
+  transform: rotate(-1.2deg);
+  animation: toast-in 0.5s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+.toast-level { background: #4FB3E8; }
+.toast-quest { background: #8CC63F; }
+.toast b { display: block; font-size: 1.05rem; }
+.toast small { display: block; opacity: 0.85; font-size: 0.85rem; line-height: 1.3; }
+.toast-star { font-size: 1.7rem; transform: rotate(-12deg); }
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(46px) rotate(5deg) scale(0.8); }
+  to   { opacity: 1; transform: translateY(0) rotate(-1.2deg) scale(1); }
+}
+
+/* ---------- sticker book (inside the learning log) ---------- */
+
+.sticker-book { margin-top: 1.8rem; }
+.sticker-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.8rem;
+}
+.sticker-head span { font-family: 'Space Mono', ui-monospace, monospace; font-size: 0.8rem; }
+.sticker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 1rem;
+}
+.sticker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.85rem 0.5rem;
+  text-align: center;
+  color: #2B1B17;
+  background: #FFF4DC;
+  border: 3px solid #2B1B17;
+  box-shadow: 4px 4px 0 #2B1B17;
+  transform: rotate(var(--r, 0deg));
+}
+.sticker:nth-child(odd)  { --r: -1.5deg; }
+.sticker:nth-child(even) { --r: 1.2deg; }
+.sticker-glyph {
+  width: 54px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 0.25rem;
+  font-size: 1.55rem;
+  font-weight: 800;
+  background: var(--sticker, #F6B91E);
+  border: 3px solid #2B1B17;
+  border-radius: 50% 46% 52% 48%;
+}
+.sticker small { font-size: 0.78rem; line-height: 1.25; opacity: 0.8; }
+.sticker.locked {
+  background: transparent;
+  border-style: dashed;
+  box-shadow: none;
+  opacity: 0.7;
+}
+.sticker.locked .sticker-glyph { background: transparent; border-style: dashed; }
+
+/* ---------- small screens ---------- */
+
+@media (max-width: 900px) {
+  .game-hud { grid-template-columns: minmax(0, 1fr); gap: 1.3rem; }
+}
+@media (max-width: 520px) {
+  .sticker-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .toast { max-width: 100%; }
+  .level-badge { width: 54px; height: 54px; font-size: 1.6rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast, .quest-item.done .quest-box { animation: none !important; }
+  .xp-bar span { transition: none; }
+}
+
+/* =====================================================================
+   "Flip through old pages": tear-off calendar leaves on a washi-tape rail.
+   Append to the END of app/globals.css. It overrides the earlier rail styles,
+   so you can leave those in place.
+
+   FONTS: the three variables below should point at the fonts you already
+   load in app/layout.tsx. Run
+       grep -n "variable" app/layout.tsx
+   and, if your variable names differ, change them here.
+   ===================================================================== */
+
+.archive-section {
+  --f-display: var(--font-caprasimo, var(--font-display, 'Caprasimo', 'Chango', Georgia, serif));
+  --f-hand: var(--font-gaegu, var(--font-caveat, var(--font-hand, 'Caveat', 'Gaegu', cursive)));
+  --f-mono: var(--font-space-mono, var(--font-mono, 'Space Mono', ui-monospace, monospace));
+  --ink: #2B1B17;
+  --paper: #FFF8E6;
+}
+
+/* ----- the two round arrow buttons next to the heading ----- */
+.archive-section .rail-controls { display: flex; gap: 0.7rem; align-self: flex-end; }
+.archive-section .rail-controls button {
+  width: 46px;
+  height: 46px;
+  min-height: 0;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  font-size: 1.35rem;
+  line-height: 1;
+  color: var(--ink);
+  background: #F6B91E;
+  border: 3px solid var(--ink);
+  border-radius: 50%;
+  box-shadow: 3px 3px 0 var(--ink);
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+}
+.archive-section .rail-controls button:nth-child(2) { background: #FF8FB1; }
+.archive-section .rail-controls button:hover { transform: translate(-1px, -2px) rotate(-6deg); box-shadow: 5px 5px 0 var(--ink); }
+.archive-section .rail-controls button:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+
+/* ----- the rail ----- */
+.archive-section .archive-rail {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 1.7rem;
+  overflow-x: auto;
+  padding: 2.2rem 1.8rem 2.6rem;
+  margin: 0 -0.5rem;
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: 1.8rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--ink) transparent;
+  -webkit-overflow-scrolling: touch;
+  /* soft fade so it is obvious there is more to scroll */
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 1.6rem, #000 calc(100% - 1.6rem), transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 1.6rem, #000 calc(100% - 1.6rem), transparent 100%);
+}
+
+/* ----- one tear-off calendar leaf ----- */
+.archive-section .rail-card {
+  --accent: #4FB3E8;
+  --on-accent: var(--ink);
+  --tilt: 0deg;
+  --tape-rot: -4deg;
+  position: relative;
+  flex: 0 0 auto;
+  width: 172px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 0;
+  gap: 0;
+  text-align: left;
+  font: inherit;
+  color: var(--ink);
+  background: var(--paper);
+  border: 3px solid var(--ink);
+  border-radius: 3px 5px 3px 6px;
+  box-shadow: 6px 6px 0 var(--ink);
+  cursor: pointer;
+  scroll-snap-align: center;
+  transform: rotate(var(--tilt));
+  transition: transform 0.18s cubic-bezier(0.3, 1.5, 0.5, 1), box-shadow 0.18s ease, background 0.18s ease;
+}
+.archive-section .rail-card:nth-child(5n + 1) { --accent: #E8452C; --on-accent: #FFF4DC; --tilt: -2deg;  --tape-rot: -5deg; }
+.archive-section .rail-card:nth-child(5n + 2) { --accent: #4FB3E8; --tilt: 1.5deg; --tape-rot: 4deg; }
+.archive-section .rail-card:nth-child(5n + 3) { --accent: #FF8FB1; --tilt: -1deg;  --tape-rot: -3deg; }
+.archive-section .rail-card:nth-child(5n + 4) { --accent: #8CC63F; --tilt: 2deg;   --tape-rot: 5deg; }
+.archive-section .rail-card:nth-child(5n + 5) { --accent: #C9B3F0; --tilt: -1.5deg; --tape-rot: -4deg; }
+
+/* washi tape holding the leaf to the rail */
+.archive-section .rail-card::before {
+  content: '';
+  position: absolute;
+  top: -15px;
+  left: 50%;
+  width: 70px;
+  height: 24px;
+  transform: translateX(-50%) rotate(var(--tape-rot));
+  background-color: var(--accent);
+  background-image: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.4) 0 5px, transparent 5px 10px);
+  border: 2px solid var(--ink);
+  opacity: 0.92;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* header band: the month, with a punched hole */
+.archive-section .rail-month {
+  position: relative;
+  display: block;
+  padding: 0.55rem 0.9rem 0.4rem;
+  font-family: var(--f-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--on-accent);
+  background: var(--accent);
+  border-bottom: 3px solid var(--ink);
+}
+.archive-section .rail-month::after {
+  content: '';
+  position: absolute;
+  right: 0.8rem;
+  top: 50%;
+  width: 11px;
+  height: 11px;
+  margin-top: -4px;
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+}
+
+/* the big day number, echoing the main calendar */
+.archive-section .rail-day {
+  display: block;
+  padding: 0.45rem 0.9rem 0;
+  font-family: var(--f-display);
+  font-size: 3.6rem;
+  font-weight: 400;
+  line-height: 1;
+  color: #E8452C;
+  text-shadow: 3px 3px 0 #F6B91E;
+}
+
+/* topic as a little sticker */
+.archive-section .rail-topic {
+  align-self: flex-start;
+  margin: 0.55rem 0.9rem 0;
+  padding: 0.12rem 0.6rem;
+  font-family: var(--f-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink);
+  background: var(--accent);
+  border: 2px solid var(--ink);
+  transform: rotate(-2.5deg);
+}
+.archive-section .rail-card:nth-child(5n + 1) .rail-topic { background: #F6B91E; }
+
+/* the fact, in handwriting, clipped to three lines */
+.archive-section .rail-fact {
+  /* margin, not padding: padding would let the clipped 4th line peek out */
+  margin: 0.6rem 0.9rem 0.95rem;
+  font-family: var(--f-hand);
+  font-style: normal;
+  font-size: 1.12rem;
+  line-height: 1.22;
+  color: var(--ink);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* hover: the leaf lifts and straightens */
+.archive-section .rail-card:hover {
+  transform: translateY(-8px) rotate(0deg);
+  box-shadow: 8px 10px 0 var(--ink);
+}
+.archive-section .rail-card:active { transform: translateY(-2px) rotate(0deg); box-shadow: 4px 4px 0 var(--ink); }
+.archive-section .rail-card:focus-visible { outline: 3px dashed #E8452C; outline-offset: 5px; }
+
+/* the page you are reading right now */
+.archive-section .rail-card[aria-current="true"] {
+  background: #FFE7A0;
+  transform: translateY(-12px) rotate(0deg) scale(1.03);
+  box-shadow: 6px 6px 0 #E8452C, 9px 9px 0 var(--ink);
+  z-index: 1;
+}
+.archive-section .rail-card[aria-current="true"]::after {
+  content: 'VIEWING';
+  position: absolute;
+  right: -10px;
+  bottom: -16px;
+  padding: 0.18rem 0.6rem;
+  font-family: var(--f-mono);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #FFF4DC;
+  background: var(--ink);
+  transform: rotate(4deg);
+}
+
+@media (max-width: 520px) {
+  .archive-section .archive-rail { gap: 1.3rem; padding-left: 1.4rem; padding-right: 1.4rem; }
+  .archive-section .rail-card { width: 148px; }
+  .archive-section .rail-day { font-size: 3.1rem; }
+  .archive-section .rail-controls button { width: 42px; height: 42px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .archive-section .rail-card,
+  .archive-section .rail-controls button { transition: none; }
+}
+/* =====================================================================
+   Daily Delight: cat animations, page turning, page navigation, phone fixes.
+   Append this to the END of app/globals.css. (It replaces extras.css; the
+   archive rail styles live in rail.css.)
+   ===================================================================== */
+
+/* ---------- 1. PIP THE CAT ---------- */
+
+.cat-svg { overflow: visible; }
+.cat-svg.is-pettable { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.cat-svg:focus-visible { outline: 3px dashed #E8452C; outline-offset: 6px; border-radius: 12px; }
+
+/* Breathing: a very slow, tiny swell of the whole body. */
+.cat-all {
+  transform-origin: 55px 106px;
+  animation: cat-breathe 3.6s ease-in-out infinite;
+}
+@keyframes cat-breathe {
+  0%, 100% { transform: scale(1, 1); }
+  50%      { transform: scale(1.012, 1.024); }
+}
+
+/* Tail: rests, then gives a lazy double swish every few seconds. */
+.cat-tail {
+  transform-origin: 84px 94px;
+  animation: cat-tail 5.5s ease-in-out infinite;
+}
+@keyframes cat-tail {
+  0%, 52%, 100% { transform: rotate(0deg); }
+  60% { transform: rotate(-16deg); }
+  68% { transform: rotate(11deg); }
+  76% { transform: rotate(-12deg); }
+  84% { transform: rotate(7deg); }
+  92% { transform: rotate(0deg); }
+}
+
+/* Ears: independent little twitches on different clocks. */
+.cat-ear-l { transform-origin: 30px 38px; animation: cat-twitch-l 7s ease-in-out infinite; }
+.cat-ear-r { transform-origin: 80px 38px; animation: cat-twitch-r 9s ease-in-out infinite 2.5s; }
+@keyframes cat-twitch-l {
+  0%, 86%, 100% { transform: rotate(0deg); }
+  89% { transform: rotate(-10deg); }
+  92% { transform: rotate(3deg); }
+  95% { transform: rotate(-6deg); }
+}
+@keyframes cat-twitch-r {
+  0%, 84%, 100% { transform: rotate(0deg); }
+  88% { transform: rotate(11deg); }
+  92% { transform: rotate(-3deg); }
+  96% { transform: rotate(6deg); }
+}
+
+/* Blink. */
+.cat-eyes {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: cat-blink 4.4s infinite;
+}
+@keyframes cat-blink {
+  0%, 91%, 100% { transform: scaleY(1); }
+  94% { transform: scaleY(0.08); }
+}
+
+/* Glance left and right now and then. */
+.cat-look { animation: cat-look 11s ease-in-out infinite 1s; }
+@keyframes cat-look {
+  0%, 38%, 100% { transform: translate(0, 0); }
+  44%, 54% { transform: translate(-2.4px, 0.4px); }
+  62%, 72% { transform: translate(2.4px, -0.6px); }
+  80% { transform: translate(0, 0); }
+}
+
+/* The paw lick: a 15 second loop where the action takes about 7 seconds.
+   The head dips, the eyes close, the paw rises and the tongue flicks. */
+.cat-paw-r  { animation: cat-lick-paw 15s ease-in-out infinite 3s; }
+.cat-leg    { opacity: 0; animation: cat-lick-leg 15s linear infinite 3s; }
+.cat-head   { transform-origin: 55px 80px; animation: cat-lick-head 15s ease-in-out infinite 3s; }
+.cat-eyes-lick {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: cat-lick-eyes 15s ease-in-out infinite 3s;
+}
+.cat-tongue {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: top center;
+  animation: cat-lick-tongue 15s ease-in-out infinite 3s;
+}
+
+@keyframes cat-lick-paw {
+  0%, 28% { transform: translate(0, 0); }
+  33% { transform: translate(-6px, -29px); }
+  36% { transform: translate(-6px, -32px); }
+  39% { transform: translate(-6px, -28px); }
+  42% { transform: translate(-6px, -32px); }
+  45% { transform: translate(-6px, -28px); }
+  48% { transform: translate(-6px, -31px); }
+  53%, 100% { transform: translate(0, 0); }
+}
+@keyframes cat-lick-leg {
+  0%, 28% { opacity: 0; }
+  31%, 50% { opacity: 1; }
+  54%, 100% { opacity: 0; }
+}
+@keyframes cat-lick-head {
+  0%, 28% { transform: rotate(0deg); }
+  33%, 48% { transform: rotate(5deg); }
+  53%, 100% { transform: rotate(0deg); }
+}
+@keyframes cat-lick-eyes {
+  0%, 30% { transform: scaleY(1); }
+  33%, 48% { transform: scaleY(0.1); }
+  52%, 100% { transform: scaleY(1); }
+}
+@keyframes cat-lick-tongue {
+  0%, 33% { opacity: 0; transform: scale(1, 1); }
+  35% { opacity: 1; transform: scale(1, 1); }
+  38% { transform: scale(1.1, 1.3); }
+  41% { transform: scale(1, 0.9); }
+  44% { transform: scale(1.1, 1.3); }
+  47% { transform: scale(1, 0.9); }
+  50% { opacity: 1; transform: scale(1.1, 1.2); }
+  52%, 100% { opacity: 0; transform: scale(1, 1); }
+}
+
+/* Petting: happy closed eyes, floating hearts, a tiny purr shake. */
+.cat-happy-eyes { display: none; }
+.cat-hearts { display: none; }
+.cat-heart {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: cat-heart-float 1.5s ease-out infinite;
+}
+.cat-hearts g:nth-child(2) .cat-heart { animation-delay: 0.4s; }
+.cat-hearts g:nth-child(3) .cat-heart { animation-delay: 0.8s; }
+@keyframes cat-heart-float {
+  0%   { opacity: 0; transform: translateY(6px) scale(0.5); }
+  20%  { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-30px) scale(1.15); }
+}
+@keyframes cat-purr {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(0.5px, -0.4px); }
+  75% { transform: translate(-0.5px, 0.4px); }
+}
+
+.cat-svg.is-purring .cat-happy-eyes { display: inline; }
+.cat-svg.is-purring .cat-hearts { display: inline; }
+.cat-svg.is-purring .cat-eyes-lick { display: none; }
+.cat-svg.is-purring .cat-all { animation: cat-purr 0.16s linear infinite; }
+.cat-svg.is-purring .cat-paw-r,
+.cat-svg.is-purring .cat-leg,
+.cat-svg.is-purring .cat-head,
+.cat-svg.is-purring .cat-tongue { animation: none; }
+.cat-svg.is-purring .cat-leg,
+.cat-svg.is-purring .cat-tongue { opacity: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cat-svg *, .turn-older, .turn-newer, .date-hero { animation: none !important; }
+}
+
+/* ---------- 2. PAGE TURNING ---------- */
+
+.turn-older { animation: turn-older 0.45s ease backwards; }
+.turn-newer { animation: turn-newer 0.45s ease backwards; }
+@keyframes turn-older {
+  from { opacity: 0; transform: translateX(-28px) rotate(-1.2deg); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes turn-newer {
+  from { opacity: 0; transform: translateX(28px) rotate(1.2deg); }
+  to   { opacity: 1; transform: none; }
+}
+.date-hero { animation: date-flip 0.5s ease backwards; transform-origin: 50% 0; }
+@keyframes date-flip {
+  from { opacity: 0; transform: perspective(500px) rotateX(-70deg); }
+  to   { opacity: 1; transform: perspective(500px) rotateX(0); }
+}
+
+/* ---------- 3. PAGE NAVIGATION (inside the calendar sheet) ---------- */
+
+.calendar-sheet { height: auto; }
+.page-nav {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 1.1rem;
+}
+.page-nav button,
+.rail-controls button {
+  font: inherit;
+  font-size: 0.95rem;
+  min-height: 40px;
+  padding: 0.3rem 0.85rem;
+  background: #FFF4DC;
+  color: #2B1B17;
+  border: 3px solid #2B1B17;
+  box-shadow: 3px 3px 0 #2B1B17;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.page-nav button:hover:not(:disabled),
+.rail-controls button:hover { transform: translate(-1px, -1px) rotate(-1deg); box-shadow: 4px 4px 0 #2B1B17; }
+.page-nav button:active:not(:disabled),
+.rail-controls button:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #2B1B17; }
+.page-nav button:disabled { opacity: 0.35; cursor: not-allowed; }
+.page-nav button:focus-visible,
+.rail-controls button:focus-visible,
+.rail-card:focus-visible { outline: 3px dashed #E8452C; outline-offset: 3px; }
+.page-nav .today-btn { background: #F6B91E; }
+.page-count { font-family: 'Space Mono', ui-monospace, monospace; font-size: 0.72rem; letter-spacing: 0.06em; }
+.page-hint { position: relative; z-index: 3; margin: 0.6rem 0 0; font-size: 0.85rem; opacity: 0.7; }
+
+/* ---------- 4. PHONE FIXES, written against your real stylesheet ---------- */
+
+@media (max-width: 600px) {
+  /* header: the ribbon shrinks so the streak stamp always fits beside it */
+  .topbar { grid-template-columns: minmax(0, 1fr) auto; }
+  .brand-ribbon { width: auto; min-width: 0; padding: 10px 14px; gap: 6px; }
+  .brand-ribbon h1 { font-size: clamp(24px, 7.6vw, 32px); white-space: nowrap; }
+  .brand-sun { display: none; }
+  .streak-stamp {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    min-width: 72px;
+    padding: 6px 10px;
+    white-space: nowrap;
+  }
+  .streak-stamp .flame { font-size: 18px; line-height: 1; }
+  .streak-stamp b { font-size: 22px; }
+  .streak-stamp small { font-size: 7px; }
+
+  /* the calendar sheet is taller now (page buttons), so Pip joins the flow
+     instead of floating over it */
+  .mascot-note {
+    position: static;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+    transform: none;
+  }
+  .mascot-note .owl { width: 88px; height: 88px; flex: 0 0 auto; }
+  .mascot-note .speech { max-width: 230px; margin-top: 0; }
+  .read-knob-wrap {
+    position: static;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .page-nav button { flex: 1 1 auto; }
+  .page-count { order: -1; flex: 1 1 100%; }
+}
